@@ -51,10 +51,14 @@ jobs:
       (needs.verify-admin.outputs.is-admin == 'true')
     steps:
       - name: Remove Comment
-        uses: izhangzhihao/delete-comment@master
+        uses: actions/github-script@v6
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_number: ${{ github.event.issue.id }}
+          script: |
+            github.rest.issues.deleteComment({
+              comment_id: context.comment.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
