@@ -168,7 +168,7 @@ jobs:
           edit-mode: replace
           body: |
             ### 🚀 Deployment Preview
-            Webapp: ${{ steps.webapp-deployment.outputs.url }}
+            Webapp: ${{ steps.spa-deployment.outputs.url }}
             Backend: ${{ steps.api-deployment.outputs.url }}
             Commit SHA: ${{ github.sha }}
           reactions: "rocket"
@@ -186,10 +186,10 @@ jobs:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
       - name: Delete PR Deployment Slot
         run: |
-          az webapp deployment slot delete --name kordis-api --resource-group KORDIS --slot pr${{ github.event.pull_request.number }} -y
-          az staticwebapp environment delete --name kordis-spa --environment-name pr${{ github.event.pull_request.number }} -y
+          az webapp deployment slot delete --name kordis-api --resource-group KORDIS --slot pr${{ github.event.pull_request.number }}
+          az staticwebapp environment delete --name kordis-spa --environment-name pr${{ github.event.pull_request.number }}
       - name: Find PR Preview Comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v2
         id: deploy-preview-comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
