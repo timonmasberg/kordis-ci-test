@@ -55,7 +55,7 @@ jobs:
         with:
           script: |
             github.rest.issues.deleteComment({
-              comment_id: context.comment.id,
+              comment_id: context.payload.comment.id,
               owner: context.repo.owner,
               repo: context.repo.repo,
             })
