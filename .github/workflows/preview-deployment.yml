@@ -5,18 +5,6 @@ on:
   issue_comment:
     types: [ created ]
 
-jobs:
-  echo:
-    needs: verify-admin
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo ${{ needs.verify-admin.outputs.is-admin }}
-      - run: echo ${{ (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) && needs.verify-admin.outputs.is-admin == true }}
-      - run: echo ${{ (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) && needs.verify-admin.outputs.is-admin == 'true' }}
-      - run: echo ${{ (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) && (needs.verify-admin.outputs.is-admin == 'true') }}
-      - run: echo ${{ (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) }}
-
-
   verify-admin:
     if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')
     runs-on: ubuntu-latest
@@ -59,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) &&
-      (needs.verify-admin.outputs.is-admin == true)
+      (needs.verify-admin.outputs.is-admin == 'true')
     steps:
       - name: Remove Comment
         uses: izhangzhihao/delete-comment@master
