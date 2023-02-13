@@ -11,6 +11,8 @@ jobs:
       (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) &&
       (needs.has-deployment.outputs.has-swa == false && needs.has-deployment.outputs.has-wa == false)
     needs: has-deployment
+    permissions:
+      issues: write
     runs-on: ubuntu-latest
     outputs:
       is-admin: ${{ steps.is-admin-check.outputs.require-result }}
@@ -22,8 +24,6 @@ jobs:
           require: 'admin'
       - name: Remove Comment
         uses: actions/github-script@v6
-        permissions:
-          issues: write
         with:
           script: 'github.rest.issues.deleteComment({ comment_id: context.payload.comment.id, owner: context.repo.owner, repo: context.repo.repo })'
 
