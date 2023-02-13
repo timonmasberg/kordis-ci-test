@@ -39,7 +39,7 @@ jobs:
     needs: has-deployment
     steps:
       - run: echo ${{ needs.has-deployment.outputs.has-swa }}
-      - run: echo $ { needs.has-deployment.outputs.has-wa }}
+      - run: echo ${{ needs.has-deployment.outputs.has-wa }}
 
   comment-handler:
     if: |
