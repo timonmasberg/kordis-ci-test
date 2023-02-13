@@ -35,6 +35,7 @@ jobs:
           >> $GITHUB_OUTPUT
 
   test:
+    runs-on: ubuntu-latest
     needs: has-deployment
     steps:
       - run: echo $ {{ needs.has-deployment.outputs.has-swa }}
