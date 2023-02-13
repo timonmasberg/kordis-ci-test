@@ -40,7 +40,7 @@ jobs:
       - name: Check if Webapp Environment exists
         id: has-swa
         run: >
-          az staticwebapp environment list --name kordis-webapp | grep -q '"name": "pr-${{ github.event.pull_request.number }}"'
+          az staticwebapp environment list --name kordis-spa | grep -q '"name": "pr-${{ github.event.pull_request.number }}"'
           && echo "has-swa=true"
           || echo "has-swa=false"
           >> $GITHUB_OUTPUT
@@ -182,7 +182,7 @@ jobs:
       - name: Delete PR Deployment Slot
         run: |
           az webapp deployment slot delete --name kordis-api --resource-group KORDIS --slot pr-${{ github.event.pull_request.number }} -y
-          az staticwebapp environment delete --name kordis-webapp --environment-name pr-${{ github.event.pull_request.number }} -y
+          az staticwebapp environment delete --name kordis-spa --environment-name pr-${{ github.event.pull_request.number }} -y
       - name: Find PR Preview Comment
         uses: peter-evans/find-comment@v1
         id: deploy-preview-comment
