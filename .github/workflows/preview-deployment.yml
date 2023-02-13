@@ -40,19 +40,17 @@ jobs:
         uses: Azure/login@v1.4.6
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
-      - run: echo ${{  github.event.pull_request.number || github.event.issue.number  }}
-      - run: echo ${{ github.event.issue.number }}
       - name: Check if Webapp Environment exists
         id: has-swa
         run: >
-          az staticwebapp environment list --name kordis-spa | grep '"name": "pr${{ github.event.pull_request.number }}"'
+          az staticwebapp environment list --name kordis-spa | grep '"name": "pr${{ github.event.pull_request.number || github.event.issue.number}}"'
           && echo "has-swa=true"
           || echo "has-swa=false"
           >> $GITHUB_OUTPUT
       - name: Check if API Environment exists
         id: has-wa
         run: >
-          az webapp deployment slot list -n kordis-api --resource-group KORDIS | grep '"name": "pr${{ github.event.pull_request.number }}"'
+          az webapp deployment slot list -n kordis-api --resource-group KORDIS | grep '"name": "pr${{ github.event.pull_request.number || github.event.issue.number }}"'
           && echo "has-swa=true"
           || echo "has-swa=false"
           >> $GITHUB_OUTPUT
