@@ -7,6 +7,9 @@ on:
   issue_comment:
     types: [ created ]
 
+permissions:
+  pull-request: write
+
 jobs:
   has-deployment:
     if: github.event.issue.pull_request
@@ -39,8 +42,6 @@ jobs:
       (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) &&
       (needs.has-deployment.outputs.has-swa == 'false' && needs.has-deployment.outputs.has-wa == 'false')
     needs: has-deployment
-    permissions:
-      issues: write
     runs-on: ubuntu-latest
     outputs:
       is-admin: ${{ steps.is-admin-check.outputs.require-result }}
