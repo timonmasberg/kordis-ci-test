@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   has-deployment:
-    if: github.event.issue.pull_request
+    if: github.event.issue.pull_request || github.event_name == 'pull_request'
     outputs:
       has-swa: ${{ steps.has-swa.outputs.has-swa }}
       has-wa: ${{ steps.has-wa.outputs.has-wa }}
