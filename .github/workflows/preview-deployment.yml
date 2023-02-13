@@ -36,7 +36,8 @@ jobs:
           && echo "has-wa=true"
           || echo "has-wa=false"
           >> $GITHUB_OUTPUT
-
+      - run: echo  ${{ steps.has-wa.outputs.has-wa }}
+      - run: echo  ${{ steps.has-wa.outputs.has-swa }}
   test:
     runs-on: ubuntu-latest
     needs: has-deployment
