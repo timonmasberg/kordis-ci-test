@@ -54,7 +54,7 @@ jobs:
         uses: izhangzhihao/delete-comment@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_number: ${{ github.event.issue.number }}
+          issue_number: ${{ github.event.issue.id }}
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
