@@ -65,7 +65,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v1.4.5
         id: pr-preview-comment
         with:
-          issue-number: ${{ github.event.pull_request.number }}
+          issue-number: ${{ github.event.issue.number }}
           body: |
             ### 🚧 Building Deployment Preview..
             A preview of this Pull Request is being created. Hold tight while it's building ⚒️
@@ -75,20 +75,20 @@ jobs:
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
       - name: Create PR Deployment Slot
-        run: az webapp deployment slot create --name kordis-api --resource-group KORDIS --slot pr-${{ github.event.pull_request.number }}
+        run: az webapp deployment slot create --name kordis-api --resource-group KORDIS --slot pr-${{ github.event.issue.number }}
       - name: Build and Deploy API
         id: api-deployment
         uses: ./.github/actions/build-and-deploy-api
         with:
-          slot: "pr-${{ github.event.pull_request.number }}"
+          slot: "pr-${{ github.event.issue.number }}"
           publishProfile: ${{ secrets.AZURE_WEBAPP_API_PUBLISH_PROFILE }}
       - name: Build and Deploy Webapp
         id: webapp-deployment
         uses: ./.github/actions/build-and-deploy-webapp
         with:
           apiUrl: ${{ steps.api-deployment.outputs.url }}
-          deploymentName: "pr-${{ github.event.pull_request.number }}"
-          deploymentEnv: "pr-${{ github.event.pull_request.number }}"
+          deploymentName: "pr-${{ github.event.issue.number }}"
+          deploymentEnv: "pr-${{github.event.issue.number }}"
           angularEnvironment: "stage"
           publishToken: ${{ secrets.AZURE_STATIC_WEB_APP_TOKEN }}
       - name: Update PR Preview Comment
