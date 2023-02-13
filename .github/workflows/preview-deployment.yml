@@ -36,14 +36,6 @@ jobs:
           || echo "has-wa=false" >> $GITHUB_OUTPUT
       - run: echo  ${{ steps.has-wa.outputs.has-wa }}
       - run: echo  ${{ steps.has-wa.outputs.has-swa }}
-  test:
-    runs-on: ubuntu-latest
-    needs: has-deployment
-    steps:
-      - run: echo ${{ needs.has-deployment.outputs.has-swa }}
-      - run: echo ${{ needs.has-deployment.outputs.has-wa }}
-      - run: echo ${{ needs.has-deployment.outputs.has-swa == 'true' && needs.has-deployment.outputs.has-wa == 'true' }}
-
 
   comment-handler:
     if: |
