@@ -186,8 +186,8 @@ jobs:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
       - name: Delete PR Deployment Slot
         run: |
-          az webapp deployment slot delete --name kordis-api --resource-group KORDIS --slot pr${{ github.event.pull_request.number }} --yes
-          az staticwebapp environment delete --name kordis-spa --environment-name pr${{ github.event.pull_request.number }}
+          az webapp deployment slot delete --name kordis-api --resource-group KORDIS --slot pr${{ github.event.pull_request.number }}
+          az staticwebapp environment delete --name kordis-spa --environment-name pr${{ github.event.pull_request.number }} --yes
       - name: Find PR Preview Comment
         uses: peter-evans/find-comment@v2
         id: deploy-preview-comment
