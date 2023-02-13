@@ -30,6 +30,7 @@ jobs:
           script: 'github.rest.issues.deleteComment({ comment_id: context.payload.comment.id, owner: context.repo.owner, repo: context.repo.repo })'
 
   has-deployment:
+    if: github.event.issue.pull_request
     outputs:
       has-swa: ${{ steps.has-swa.outputs.has-swa }}
       has-wa: ${{ steps.has-wa.outputs.has-wa }}
