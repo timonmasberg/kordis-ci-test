@@ -6,19 +6,28 @@ on:
     types: [ created ]
 
 jobs:
-  verify-admin:
-    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')
+  comment-handler:
+    if: |
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) &&
+      (needs.has-deployment.outputs.has-swa == false && needs.has-deployment.outputs.has-wa == false)
+    needs: has-deployment
     runs-on: ubuntu-latest
     outputs:
       is-admin: ${{ steps.is-admin-check.outputs.require-result }}
     steps:
-      - uses: actions-cool/check-user-permission@v2
+      - name: Check Permission
+        uses: actions-cool/check-user-permission@v2
         id: is-admin-check
         with:
           require: 'admin'
+      - name: Remove Comment
+        uses: actions/github-script@v6
+        permissions:
+          issues: write
+        with:
+          script: 'github.rest.issues.deleteComment({ comment_id: context.payload.comment.id, owner: context.repo.owner, repo: context.repo.repo })'
 
   has-deployment:
-    if: github.event_name == 'pull_request'
     outputs:
       has-swa: ${{ steps.has-swa.outputs.has-swa }}
       has-wa: ${{ steps.has-wa.outputs.has-wa }}
@@ -44,22 +53,12 @@ jobs:
           >> $GITHUB_OUTPUT
 
   deployment:
-    permissions: write-all
     needs: verify-admin
     runs-on: ubuntu-latest
     if: |
       (github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/deploy-preview')) &&
       (needs.verify-admin.outputs.is-admin == 'true')
     steps:
-      - name: Remove Comment
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.deleteComment({
-              comment_id: context.payload.comment.id,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
