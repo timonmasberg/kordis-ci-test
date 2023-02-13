@@ -1,5 +1,5 @@
 name: Preview Deployment
-concurrency: ${{ github.ref }}
+concurrency: ${{ github.ref }}_environment
 
 on:
   pull_request:
