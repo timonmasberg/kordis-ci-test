@@ -39,6 +39,8 @@ jobs:
         uses: Azure/login@v1.4.6
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
+      - run: echo ${{ github.event.pull_request.number }}
+      - run: az staticwebapp environment list --name kordis-spa
       - name: Check if Webapp Environment exists
         id: has-swa
         run: >
