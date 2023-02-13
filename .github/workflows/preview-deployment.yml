@@ -25,14 +25,14 @@ jobs:
       - name: Check if Webapp Environment exists
         id: has-swa
         run: >
-          az staticwebapp environment list --name kordis-spa | grep '"name": "pr${{ github.event.pull_request.number || github.event.issue.number }}"'
+          az staticwebapp environment list --name kordis-spa | grep -q '"name": "pr${{ github.event.pull_request.number || github.event.issue.number }}"'
           && echo "has-swa=true"
           || echo "has-swa=false"
           >> $GITHUB_OUTPUT
       - name: Check if API Environment exists
         id: has-wa
         run: >
-          az webapp deployment slot list -n kordis-api --resource-group KORDIS | grep '"name": "pr${{ github.event.pull_request.number || github.event.issue.number }}"'
+          az webapp deployment slot list -n kordis-api --resource-group KORDIS | grep -q '"name": "pr${{ github.event.pull_request.number || github.event.issue.number }}"'
           && echo "has-wa=true"
           || echo "has-wa=false"
           >> $GITHUB_OUTPUT
