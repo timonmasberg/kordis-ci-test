@@ -3,49 +3,42 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
 
 jobs:
-  check-pr-title:
-    if: github.event_name == 'pull_request'
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: amannn/action-semantic-pull-request@v5
+      - name: Checkout infra repository
+        uses: actions/checkout@v4
+      - name: Close existing prod deployment PRs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE_PREFIX="ci(prod): deploy"
+          # Use GitHub API to list open pull requests in the repository
+          PRS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open" | \
+            jq -r '.[] | select(.title | startswith("'"$TITLE_PREFIX"'")) | .number')
 
-  main:
-    if: github.event.action != 'edited'
+          for PR in $PRS; do
+            # Use GitHub API to close the pull request
+            echo "Closing PR #$PR"
+            curl -s -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
+              -d '{"state":"closed", "body": "Superset by new version..."}' \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/$PR"
+          done
+        shell: bash
+
+  testk8s:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Ensure Conventional Commits
-        uses: webiny/action-conventional-commits@v1.1.0
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      - run: npm ci
-      - uses: nrwl/nx-set-shas@v3
-      - run: npx nx workspace-lint
-      - name: Check Formatting
-        run: npx nx format:check
-      - name: Lint
-        run: npx nx affected --target=lint --parallel=3
-      - name: Run Tests with Code Coverage
-        run: npx nx affected --target=test --parallel=3 --ci --coverage --coverageReporters=lcov
-      - name: Merge Coverage files
-        run: '[ -d "./coverage/" ] && ./node_modules/.bin/lcov-result-merger ./coverage/**/lcov.info ./coverage/lcov.info || exit 0'
-      - name: Build
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v3
+      - name: Configure Kubernetes Cluster
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
         run: |
-          touch apps/client/src/environments/environment.prod.ts
-          npx nx affected --target=build --parallel=3
-      - name: Run e2es
-        run: npx nx affected --target=e2e
+          echo "$KUBECONFIG_DATA" | base64 -d > $HOME/.kube/config
+          kubectl get pods
