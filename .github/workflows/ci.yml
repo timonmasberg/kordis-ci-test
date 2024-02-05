@@ -15,9 +15,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Commit check
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          echo "hallo" > test.txt
+          git config --local user.email "info@kordis-leitstelle.de"
+          git config --local user.name "Kordis Release Bot"
+          echo "hallo" > test2.txt
           git add -A
           git commit -m "testcommit"
           git push
