@@ -12,6 +12,13 @@ jobs:
     steps:
       - name: Checkout infra repository
         uses: actions/checkout@v4
+      - name: Commit check
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          echo "hallo" > test.txt
+          git commit -am "testcommit"
+          git push
       - name: Close existing prod deployment PRs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
