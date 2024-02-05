@@ -17,7 +17,8 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           echo "hallo" > test.txt
-          git commit -am "testcommit"
+          git add -A
+          git commit -m "testcommit"
           git push
       - name: Close existing prod deployment PRs
         env:
