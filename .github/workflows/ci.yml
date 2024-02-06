@@ -8,14 +8,28 @@ jobs:
   testk8s:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      #- name: Set up Kubectl
-      #  uses: azure/setup-kubectl@v3
-      - uses: azure/k8s-set-context@v3
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG }}
-      - name: Configure Kubernetes Cluster
+      - name: Extract tag and environment from commit message
+        id: extract_tag
         run: |
-          kubectl get pods
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          TAG=$(echo $COMMIT_MESSAGE | grep -oP '(?<=ci\(prod\): deploy |ci\(next\): deploy ).*')
+          ENV=$(echo "$COMMIT_MESSAGE" | grep -oP 'ci\((prod|next)\):' | grep -oP '(prod|next)')
+          echo "tag=$TAG" >> $GITHUB_ENV
+          echo "environment=$ENV" >> $GITHUB_ENV
+          echo "${{ env.environment }}"
+          echo "${{ env.tag }}"
+      - name: Checkout kordis repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'kordis-leitstelle/kordis'
+          ref: ${{ github.event.client_payload.release }}
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      - name: Build with sourcemaps
+        run: npx nx run-many --target=build --projects=api,spa --parallel --prod --sourceMaps
+      - run: ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
+
