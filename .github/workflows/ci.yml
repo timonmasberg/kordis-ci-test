@@ -5,41 +5,6 @@ on:
       - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - name: Checkout infra repository
-        uses: actions/checkout@v4
-      - name: Commit check
-        run: |
-          git config --local user.email "info@kordis-leitstelle.de"
-          git config --local user.name "Kordis Release Bot"
-          echo "hallo" > test2.txt
-          git add -A
-          git commit -m "testcommit"
-          git push
-      - name: Close existing prod deployment PRs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TITLE_PREFIX="ci(prod): deploy"
-          # Use GitHub API to list open pull requests in the repository
-          PRS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open" | \
-            jq -r '.[] | select(.title | startswith("'"$TITLE_PREFIX"'")) | .number')
-
-          for PR in $PRS; do
-            # Use GitHub API to close the pull request
-            echo "Closing PR #$PR"
-            curl -s -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
-              -d '{"state":"closed", "body": "Superset by new version..."}' \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/$PR"
-          done
-        shell: bash
-
   testk8s:
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +15,7 @@ jobs:
       - uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG_DATA }}
+          kubeconfig: ${{ secrets.KUBECONFIG }}
       - name: Configure Kubernetes Cluster
         run: |
           kubectl get pods
