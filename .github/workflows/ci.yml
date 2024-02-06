@@ -16,8 +16,8 @@ jobs:
           ENV=$(echo "$COMMIT_MESSAGE" | grep -oP 'ci\((prod|next)\):' | grep -oP '(prod|next)')
           echo "tag=$TAG" >> $GITHUB_ENV
           echo "environment=$ENV" >> $GITHUB_ENV
-          echo "${{ env.environment }}"
-          echo "${{ env.tag }}"
+          echo "$TAG"
+          echo "$ENV"
       - name: Checkout kordis repository
         uses: actions/checkout@v4
         with:
@@ -30,6 +30,6 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: Build with sourcemaps
-        run: npx nx run-many --target=build --projects=api,spa --parallel --prod --sourceMaps
+        run: npx nx run-many --target=build --projects=api,spa --parallel --prod --sourceMap
       - run: ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
 
