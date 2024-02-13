@@ -5,31 +5,48 @@ on:
       - main
 
 jobs:
-  testk8s:
+  testpr:
     runs-on: ubuntu-latest
     steps:
-      - name: Extract tag and environment from commit message
-        id: extract_tag
+      - uses: actions/checkout@v4
+      - name: Setup Git config
         run: |
-          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
-          TAG=$(echo $COMMIT_MESSAGE | grep -oP '(?<=ci\(prod\): deploy |ci\(next\): deploy ).*')
-          ENV=$(echo "$COMMIT_MESSAGE" | grep -oP 'ci\((prod|next)\):' | grep -oP '(prod|next)')
-          echo "tag=$TAG" >> $GITHUB_ENV
-          echo "environment=$ENV" >> $GITHUB_ENV
-          echo "$TAG"
-          echo "$ENV"
-      - name: Checkout kordis repository
-        uses: actions/checkout@v4
-        with:
-          repository: 'kordis-leitstelle/kordis'
-          ref: ${{ github.event.client_payload.release }}
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      - run: npm ci
-      - name: Build with sourcemaps
-        run: npx nx run-many --target=build --projects=api,spa --parallel --prod --sourceMap
-      - run: ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
+          git config --local user.email "info@kordis-leitstelle.de"
+          git config --local user.name "Kordis Release Bot"
+
+      - name: Checkout deploy branch
+        run: |
+          git checkout -b prod-deployment
+          echo "test" > test.txt
+          git add .
+          git commit -m "ci(prod): deploy v1.1.1"
+          git push
+      - name: Update or Create PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_TAG="v1.1.1"
+          BRANCH_NAME="prod-deployment"
+          TITLE="ci(prod): deploy $RELEASE_TAG"
+          PR_TITLE_PREFIX="ci(prod): deploy"
+          
+          # Check if PR already exists
+          EXISTING_PR_NUMBER=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+               "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY%%/*}:$BRANCH_NAME" | \
+               jq -r '.[] | select(.title | startswith("'"$PR_TITLE_PREFIX"'")) | .number' | head -n 1)
+           if [[ ! -z "$EXISTING_PR_NUMBER" ]]; then
+            echo "Updating existing PR #$EXISTING_PR_NUMBER"
+            curl -s -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
+              -d "{\"title\":\"$TITLE\", \"body\": \"This is an automated pull request to deploy [release $RELEASE_TAG](https://github.com/kordis-leitstelle/kordis/releases/tag/$RELEASE_TAG) to production.\"}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/$EXISTING_PR_NUMBER"
+          else
+              echo "Creating a new PR"
+              gh pr create --title "$TITLE" \
+                --body "This is an automated pull request to deploy [release $RELEASE_TAG](https://github.com/kordis-leitstelle/kordis/releases/tag/$RELEASE_TAG) to production." \
+                --base main \
+                --head "$BRANCH_NAME" \
+                --reviewer JSPRH,timonmasberg \
+                --token $GITHUB_TOKEN
+            fi
+        shell: bash
 
