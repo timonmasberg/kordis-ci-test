@@ -19,7 +19,7 @@ jobs:
 
       - name: Checkout deploy branch
         run: |
-          $BRANCH_NAME="prod-deployment"
+          BRANCH_NAME="prod-deployment"
           git checkout -b $BRANCH_NAME
           if git ls-remote --heads origin $BRANCH_NAME | grep -qw $BRANCH_NAME; then
             echo "Branch exists on origin. Setting up tracking..."
