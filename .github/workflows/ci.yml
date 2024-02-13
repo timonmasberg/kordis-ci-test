@@ -19,8 +19,15 @@ jobs:
 
       - name: Checkout deploy branch
         run: |
-          git checkout -b prod-deployment
-          git push --set-upstream origin prod-deployment
+          $BRANCH_NAME="prod-deployment"
+          git checkout -b $BRANCH_NAME
+          if git ls-remote --heads origin $BRANCH_NAME | grep -qw $BRANCH_NAME; then
+            echo "Branch exists on origin. Setting up tracking..."
+            git branch --set-upstream-to=origin/$BRANCH_NAME $BRANCH_NAME
+          else
+            echo "Branch does not exist on origin. Pushing and setting up tracking..."
+            git push --set-upstream origin $BRANCH_NAME
+          fi
           echo "test" > test.txt
           git add .
           git commit -m "ci(prod): deploy v1.1.1"
