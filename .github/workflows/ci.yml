@@ -12,6 +12,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Git config
         run: |
           git config --local user.email "info@kordis-leitstelle.de"
