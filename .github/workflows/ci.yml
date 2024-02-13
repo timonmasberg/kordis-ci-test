@@ -50,7 +50,6 @@ jobs:
                 --base main \
                 --head "$BRANCH_NAME" \
                 --reviewer JSPRH,timonmasberg \
-                --token $GITHUB_TOKEN
             fi
         shell: bash
 
