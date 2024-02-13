@@ -30,15 +30,15 @@ jobs:
             echo "Branch does not exist on origin. Pushing and setting up tracking..."
             git push --set-upstream origin $BRANCH_NAME
           fi
-          echo "piosdafasdasdsadu" > uhwduiw.txt
+          echo "piosdsdfgsdfgafasdasdsadu" > uhwduiw.txt
           git add .
-          git commit -m "ci(prod): deploy v1.1.1"
+          git commit -m "ci(prod): deploy v1.1.2"
           git push
       - name: Update or Create PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_TAG="v1.1.1"
+          RELEASE_TAG="v1.1.2"
           BRANCH_NAME="prod-deployment"
           TITLE="ci(prod): deploy $RELEASE_TAG"
           PR_TITLE_PREFIX="ci(prod): deploy"
