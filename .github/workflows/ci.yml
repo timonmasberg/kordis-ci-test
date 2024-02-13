@@ -17,6 +17,7 @@ jobs:
       - name: Checkout deploy branch
         run: |
           git checkout -b prod-deployment
+          git push --set-upstream origin prod-deployment
           echo "test" > test.txt
           git add .
           git commit -m "ci(prod): deploy v1.1.1"
