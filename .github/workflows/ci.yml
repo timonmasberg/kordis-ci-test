@@ -21,6 +21,7 @@ jobs:
 
       - name: Checkout deploy branch
         run: |
+          echo "test" > test.txt
           git add .
           git commit -m "ci(prod): deploy v1.1.1"
           git push
