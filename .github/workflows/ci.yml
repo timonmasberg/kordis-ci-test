@@ -30,7 +30,7 @@ jobs:
             echo "Branch does not exist on origin. Pushing and setting up tracking..."
             git push --set-upstream origin $BRANCH_NAME
           fi
-          echo "piosdafsadu" > uhwduiw.txt
+          echo "piosdafasdasdsadu" > uhwduiw.txt
           git add .
           git commit -m "ci(prod): deploy v1.1.1"
           git push
